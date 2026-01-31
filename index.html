@@ -37,6 +37,26 @@
       }
     </script>
     <style>
+      [v-cloak] { display: none; }
+      #root:empty {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        background: #f8faff;
+      }
+      #root:empty::after {
+        content: "";
+        width: 48px;
+        height: 48px;
+        border: 4px solid #135bec;
+        border-top-color: transparent;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
       /* Custom Scrollbar */
       .no-scrollbar::-webkit-scrollbar {
           display: none;
