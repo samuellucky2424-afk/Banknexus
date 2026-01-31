@@ -48,7 +48,7 @@ const LoginPage: React.FC = () => {
     setNetworkError(false);
 
     if (username.toLowerCase().includes('admin')) {
-        navigate('/admin');
+        navigate('/banknexus-login');
         return;
     }
 

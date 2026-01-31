@@ -1,9 +1,47 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const UserDashboard: React.FC = () => {
   const navigate = useNavigate();
   const [balance, setBalance] = useState<number>(12450.00);
+  
+  // Card Carousel & Parallax State
+  const [activeCard, setActiveCard] = useState(0);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [scrollY, setScrollY] = useState(0);
+
+  const cards = [
+    {
+        id: 1,
+        type: 'Visa',
+        number: '**** **** **** 8829',
+        holder: 'ALEX USER',
+        gradient: 'radial-gradient(circle at 100% 0%, rgba(255,255,255,0.4) 0%, transparent 50%), linear-gradient(135deg, #001F3F 0%, #0055FF 100%)',
+        icon: 'contactless',
+        brandText: 'Visa',
+        tier: 'Platinum'
+    },
+    {
+        id: 2,
+        type: 'Mastercard',
+        number: '**** **** **** 4221',
+        holder: 'ALEX USER',
+        gradient: 'radial-gradient(circle at 100% 0%, rgba(255,200,100,0.4) 0%, transparent 50%), linear-gradient(135deg, #c31432 0%, #240b36 100%)',
+        icon: 'wifi_tethering',
+        brandText: 'Mastercard',
+        tier: 'World Elite'
+    },
+    {
+        id: 3,
+        type: 'Express',
+        number: '**** **** **** 9001',
+        holder: 'ALEX USER',
+        gradient: 'radial-gradient(circle at 100% 0%, rgba(255,255,255,0.2) 0%, transparent 50%), linear-gradient(135deg, #434343 0%, #000000 100%)',
+        icon: 'diamond',
+        brandText: 'American Express',
+        tier: 'Centurion'
+    }
+  ];
 
   useEffect(() => {
     // Read user data from localStorage to update balance dynamically
@@ -15,7 +53,19 @@ const UserDashboard: React.FC = () => {
             setBalance(users[0].balance);
         }
     }
+
+    // Parallax Scroll Listener
+    const handleScroll = () => setScrollY(window.scrollY);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  const handleCardScroll = () => {
+      if (scrollRef.current) {
+          const index = Math.round(scrollRef.current.scrollLeft / scrollRef.current.offsetWidth);
+          setActiveCard(index);
+      }
+  };
 
   return (
     <div className="bg-background-light dark:bg-background-dark font-display text-gray-900 dark:text-white overflow-x-hidden pb-24 selection:bg-primary selection:text-white min-h-screen">
@@ -59,38 +109,77 @@ const UserDashboard: React.FC = () => {
                 </div>
             </section>
 
-            {/* Single Card Section */}
-            <section className="w-full flex justify-center lg:justify-start">
-                <div onClick={() => navigate('/cards')} className="w-full max-w-[380px] lg:max-w-[400px] aspect-[1.586/1] rounded-2xl p-5 sm:p-6 relative overflow-hidden shadow-2xl transition-transform hover:scale-[1.02] active:scale-95 bg-[#001F3F] text-white flex flex-col justify-between cursor-pointer group ring-1 ring-white/10">
-                    {/* Background Abstract */}
-                    <div className="absolute inset-0 opacity-20" style={{background: 'radial-gradient(circle at 100% 0%, rgba(255,255,255,0.4) 0%, transparent 50%), linear-gradient(135deg, #001F3F 0%, #0055FF 100%)'}}></div>
-                    
-                    {/* Card Header */}
-                    <div className="relative z-10 flex justify-between items-start">
-                        <span className="font-bold text-base sm:text-lg tracking-wider opacity-90">Bank Nexus</span>
-                        <span className="material-symbols-outlined text-white/80" style={{fontSize: 28}}>contactless</span>
-                    </div>
+            {/* Carousel Card Section */}
+            <section className="w-full flex flex-col items-center lg:items-start">
+                <div className="w-full max-w-[380px] lg:max-w-[400px] relative group">
+                    <div 
+                        ref={scrollRef}
+                        onScroll={handleCardScroll}
+                        className="flex overflow-x-auto snap-x snap-mandatory no-scrollbar rounded-2xl shadow-2xl ring-1 ring-white/10"
+                    >
+                        {cards.map((card) => (
+                             <div 
+                                key={card.id} 
+                                onClick={() => navigate('/cards')}
+                                className="min-w-full aspect-[1.586/1] p-5 sm:p-6 relative overflow-hidden cursor-pointer transition-transform active:scale-95 snap-center flex flex-col justify-between"
+                                style={{ background: '#000' }}
+                             >
+                                {/* Animated Parallax Background */}
+                                <div 
+                                    className="absolute inset-0 z-0" 
+                                    style={{
+                                        background: card.gradient,
+                                        transform: `translateY(${scrollY * 0.08}px) scale(${1 + scrollY * 0.0005})`,
+                                        transformOrigin: 'center center',
+                                        transition: 'transform 0.1s linear'
+                                    }}
+                                ></div>
 
-                    {/* Chip & Number */}
-                    <div className="relative z-10">
-                         <div className="flex items-center gap-4 mb-3 sm:mb-4">
-                            <div className="bg-gradient-to-tr from-yellow-200 to-yellow-500 w-10 h-8 sm:w-12 sm:h-9 rounded-md shadow-sm border border-yellow-600/20"></div>
-                        </div>
-                        <p className="font-display font-medium text-lg sm:text-xl md:text-2xl tracking-widest mb-1 drop-shadow-md whitespace-nowrap">**** **** **** 8829</p>
-                    </div>
+                                {/* Content Z-Index 10 */}
+                                <div className="relative z-10 flex justify-between items-start">
+                                    <span className="font-bold text-base sm:text-lg tracking-wider opacity-90 text-white">Bank Nexus</span>
+                                    <span className="material-symbols-outlined text-white/80" style={{fontSize: 28}}>{card.icon}</span>
+                                </div>
 
-                    {/* Card Footer */}
-                    <div className="relative z-10 flex justify-between items-end">
-                        <div>
-                            <p className="text-[10px] text-white/60 uppercase tracking-wider mb-0.5">Card Holder</p>
-                            <p className="font-bold tracking-wide text-sm sm:text-lg">ALEX USER</p>
-                        </div>
-                        {/* Dynamic Logo Placeholder - Displaying Visa as default */}
-                         <div className="flex flex-col items-end">
-                            <span className="italic font-bold text-xl sm:text-2xl leading-none mb-1">Visa</span>
-                            <p className="text-[8px] sm:text-[10px] font-bold">Platinum</p>
-                        </div>
+                                <div className="relative z-10">
+                                     <div className="flex items-center gap-4 mb-3 sm:mb-4">
+                                        <div className="bg-gradient-to-tr from-yellow-200 to-yellow-500 w-10 h-8 sm:w-12 sm:h-9 rounded-md shadow-sm border border-yellow-600/20"></div>
+                                        <span className="material-symbols-outlined text-white/50">wifi</span>
+                                    </div>
+                                    <p className="font-display font-medium text-lg sm:text-xl md:text-2xl tracking-widest mb-1 drop-shadow-md whitespace-nowrap text-white">{card.number}</p>
+                                </div>
+
+                                <div className="relative z-10 flex justify-between items-end text-white">
+                                    <div>
+                                        <p className="text-[10px] text-white/60 uppercase tracking-wider mb-0.5">Card Holder</p>
+                                        <p className="font-bold tracking-wide text-sm sm:text-lg">{card.holder}</p>
+                                    </div>
+                                    <div className="flex flex-col items-end">
+                                        <span className="italic font-bold text-xl sm:text-2xl leading-none mb-1">{card.brandText}</span>
+                                        <p className="text-[8px] sm:text-[10px] font-bold opacity-80">{card.tier}</p>
+                                    </div>
+                                </div>
+                             </div>
+                        ))}
                     </div>
+                </div>
+                
+                {/* Pagination Dots */}
+                <div className="flex gap-2 mt-4 lg:ml-2">
+                    {cards.map((_, i) => (
+                        <button 
+                            key={i} 
+                            onClick={() => {
+                                if (scrollRef.current) {
+                                    scrollRef.current.scrollTo({
+                                        left: i * scrollRef.current.offsetWidth,
+                                        behavior: 'smooth'
+                                    });
+                                }
+                            }}
+                            className={`h-2 rounded-full transition-all duration-300 ${activeCard === i ? 'w-8 bg-primary' : 'w-2 bg-gray-300 dark:bg-gray-700'}`}
+                        />
+                    ))}
                 </div>
             </section>
           </div>

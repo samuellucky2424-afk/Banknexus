@@ -56,7 +56,7 @@ const App: React.FC = () => {
           
           {/* Dashboard */}
           <Route path="/dashboard" element={<UserDashboard />} />
-          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/banknexus-login" element={<AdminDashboard />} />
           <Route path="/notifications" element={<Notifications />} />
           
           {/* Main Features */}
